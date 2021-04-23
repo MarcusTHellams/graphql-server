@@ -1,0 +1,64 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+const app = require('../app');
+const debug = require('debug')('graphql-server:server');
+const { ApolloServer } = require('apollo-server-express');
+const { Schema } = require('../graphql/rootSchema');
+
+(async function () {
+  /**
+   * Get port from environment and store in Express.
+   */
+
+  const server = new ApolloServer({
+    schema: Schema,
+    playground: true,
+  });
+
+  await server.start();
+
+  server.applyMiddleware({ app });
+
+  app.use((req, res) => {
+    res.status(200);
+    res.send('Hello!');
+    res.end();
+  });
+
+  const port = normalizePort(process.env.PORT || '3000');
+  app.set('port', port);
+
+  await new Promise(resolve => app.listen({ port }, resolve));
+  console.log(`🚀 Server ready at http://localhost:${port}${server.graphqlPath}`);
+
+})();
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}
