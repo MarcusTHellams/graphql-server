@@ -8,6 +8,10 @@ const app = require('../app');
 const debug = require('debug')('graphql-server:server');
 const { ApolloServer } = require('apollo-server-express');
 const { Schema } = require('../graphql/rootSchema');
+const DataLoader = require('dataloader');
+const { default: axios } = require('axios');
+
+let times = 0;
 
 (async function () {
   /**
@@ -17,6 +21,30 @@ const { Schema } = require('../graphql/rootSchema');
   const server = new ApolloServer({
     schema: Schema,
     playground: true,
+    context: () => {
+      return {
+        authorLoader: new DataLoader(async (keys) => {
+          times++;
+          console.log('times: ', times);
+          const query = keys.reduce((acc, current, index) => {
+            return `${acc}${index === 0 ? '' : '&'}id=${current}`;
+          }, '');
+          console.log('query: ', query);
+          const { data: authors } = await axios.get(
+            `http://localhost:3004/authors?${query}`
+          );
+
+          const authorMap = {};
+          authors.forEach((author) => {
+            authorMap[author.id] = author;
+          });
+
+          return keys.map((key) => {
+            return authorMap[key];
+          });
+        }),
+      };
+    },
   });
 
   await server.start();
@@ -32,9 +60,10 @@ const { Schema } = require('../graphql/rootSchema');
   const port = normalizePort(process.env.PORT || '3000');
   app.set('port', port);
 
-  await new Promise(resolve => app.listen({ port }, resolve));
-  console.log(`🚀 Server ready at http://localhost:${port}${server.graphqlPath}`);
-
+  await new Promise((resolve) => app.listen({ port }, resolve));
+  console.log(
+    `🚀 Server ready at http://localhost:${port}${server.graphqlPath}`
+  );
 })();
 
 function normalizePort(val) {
