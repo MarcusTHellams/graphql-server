@@ -12,8 +12,6 @@ const DataLoader = require('dataloader');
 const { default: axios } = require('axios');
 const groupBy = require('lodash.groupby');
 
-let times = 0;
-
 (async function () {
   /**
    * Get port from environment and store in Express.

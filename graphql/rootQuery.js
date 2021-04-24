@@ -1,5 +1,6 @@
 const { default: axios } = require('axios');
 const { GraphQLNonNull } = require('graphql');
+const { GraphQLID } = require('graphql');
 const { GraphQLList } = require('graphql');
 const { GraphQLObjectType, GraphQLString } = require('graphql');
 const { AuthorType } = require('./types/authorType');
@@ -9,12 +10,6 @@ const RootQuery = new GraphQLObjectType({
   name: 'rootQuery',
   fields: () => {
     return {
-      hello: {
-        type: GraphQLString,
-        resolve: () => {
-          return 'Hello Marcus';
-        },
-      },
       getAuthors: {
         type: new GraphQLList(AuthorType),
         resolve: async ()=>{
@@ -25,7 +20,7 @@ const RootQuery = new GraphQLObjectType({
       getAuthor: {
         type: AuthorType,
         args:{
-          id: {type: new GraphQLNonNull(GraphQLString)}
+          id: {type: new GraphQLNonNull(GraphQLID)}
         },
         resolve: async (_, {id})=>{
             const {data: author} = await axios.get(`http://localhost:3004/authors/${id}`);
@@ -37,6 +32,16 @@ const RootQuery = new GraphQLObjectType({
         resolve: async ()=>{
             const {data: books} = await axios.get('http://localhost:3004/books');
             return books;
+        }
+      },
+      getBook: {
+        type: BookType,
+        args:{
+          id: {type: new GraphQLNonNull(GraphQLID)}
+        },
+        resolve: async (_, {id})=>{
+            const {data: author} = await axios.get(`http://localhost:3004/books/${id}`);
+            return author;
         }
       },
     };

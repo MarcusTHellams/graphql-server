@@ -1,4 +1,3 @@
-const { GraphQLInt } = require('graphql');
 const { GraphQLInputObjectType } = require('graphql');
 const {
   GraphQLObjectType,

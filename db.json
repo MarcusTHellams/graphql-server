@@ -1,9 +1,9 @@
 {
   "authors": [
     {
-      "id": 1,
-      "firstName": "Kyrstin",
-      "lastName": "Sambath"
+      "firstName": "Marcus",
+      "lastName": "Hellams",
+      "id": 1
     },
     {
       "id": 2,
@@ -51,11 +51,6 @@
       "id": 7,
       "title": "Maria",
       "authorId": 2
-    },
-    {
-      "title": "New Book",
-      "authorId": "3",
-      "id": 8
     }
   ]
 }

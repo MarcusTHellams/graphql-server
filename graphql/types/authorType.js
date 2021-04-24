@@ -1,4 +1,3 @@
-const axios = require('axios');
 const { GraphQLInputObjectType } = require('graphql');
 const {
   GraphQLObjectType,
