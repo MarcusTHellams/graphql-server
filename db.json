@@ -51,6 +51,11 @@
       "id": 7,
       "title": "Maria",
       "authorId": 2
+    },
+    {
+      "title": "New Book",
+      "authorId": "3",
+      "id": 8
     }
   ]
 }
