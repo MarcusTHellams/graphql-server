@@ -1,7 +1,5 @@
 const { default: axios } = require('axios');
-const { GraphQLNonNull } = require('graphql');
-const { GraphQLID } = require('graphql');
-const { GraphQLObjectType } = require('graphql');
+const { GraphQLID, GraphQLNonNull, GraphQLObjectType } = require('graphql');
 const { AuthorType, AuthorInputType } = require('./types/authorType');
 const { BookType, BookInputType } = require('./types/bookType');
 

@@ -11,6 +11,7 @@ const { Schema } = require('../graphql/rootSchema');
 const DataLoader = require('dataloader');
 const { default: axios } = require('axios');
 const groupBy = require('lodash.groupby');
+const keyBy  = require('lodash.keyby');
 
 (async function () {
   /**
@@ -30,10 +31,7 @@ const groupBy = require('lodash.groupby');
             `http://localhost:3004/authors?${query}`
           );
 
-          const authorMap = {};
-          authors.forEach((author) => {
-            authorMap[author.id] = author;
-          });
+          const authorMap = keyBy(authors, 'id');
 
           return keys.map((key) => {
             return authorMap[key];
