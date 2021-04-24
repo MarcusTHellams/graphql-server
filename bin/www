@@ -10,6 +10,7 @@ const { ApolloServer } = require('apollo-server-express');
 const { Schema } = require('../graphql/rootSchema');
 const DataLoader = require('dataloader');
 const { default: axios } = require('axios');
+const groupBy = require('lodash.groupby');
 
 let times = 0;
 
@@ -24,12 +25,9 @@ let times = 0;
     context: () => {
       return {
         authorLoader: new DataLoader(async (keys) => {
-          times++;
-          console.log('times: ', times);
           const query = keys.reduce((acc, current, index) => {
             return `${acc}${index === 0 ? '' : '&'}id=${current}`;
           }, '');
-          console.log('query: ', query);
           const { data: authors } = await axios.get(
             `http://localhost:3004/authors?${query}`
           );
@@ -41,6 +39,20 @@ let times = 0;
 
           return keys.map((key) => {
             return authorMap[key];
+          });
+        }),
+        bookLoader: new DataLoader(async (keys) => {
+          const query = keys.reduce((acc, current, index) => {
+            return `${acc}${index === 0 ? '' : '&'}authorId=${current}`;
+          }, '');
+          const { data: books } = await axios.get(
+            `http://localhost:3004/books?${query}`
+          );
+
+          const groupedBooks = groupBy(books, (book) => book.authorId);
+
+          return keys.map((key) => {
+            return groupedBooks[key];
           });
         }),
       };

@@ -1,16 +1,11 @@
 const { GraphQLInt } = require('graphql');
+const { GraphQLInputObjectType } = require('graphql');
 const {
   GraphQLObjectType,
   GraphQLNonNull,
   GraphQLString,
-  GraphQLList,
   GraphQLID,
 } = require('graphql');
-const { AuthorType } = require('./authorType');
-const { MarcusType } = require('./marcusType');
-console.log('MarcusType: ', MarcusType);
-console.log('AuthorType: ', AuthorType);
-
 
 const BookType = new GraphQLObjectType({
   name: 'book',
@@ -19,15 +14,24 @@ const BookType = new GraphQLObjectType({
     return {
       id: { type: new GraphQLNonNull(GraphQLID) },
       title: { type: new GraphQLNonNull(GraphQLString) },
-      authorId: { type: GraphQLInt },
-      authors: {
-        type: new GraphQLList(GraphQLString),
-        resolve: (source) => {
-          return [];
+      author: {
+        type: require('./authorType').AuthorType,
+        resolve: async ({ authorId }, _, context) => {
+          return context.authorLoader.load(authorId);
         },
       },
     };
   },
 });
+const BookInputType = new GraphQLInputObjectType({
+  name: 'bookInputType',
+  description: 'Book Input Type',
+  fields: () => {
+    return {
+      title: { type: new GraphQLNonNull(GraphQLString) },
+      authorId: { type: new GraphQLNonNull(GraphQLID) },
+    };
+  },
+});
 
-module.exports = { BookType, default: BookType };
+module.exports = { BookType, BookInputType ,default: BookType };

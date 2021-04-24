@@ -1,11 +1,11 @@
 const axios = require('axios');
+const { GraphQLInputObjectType } = require('graphql');
 const {
   GraphQLObjectType,
   GraphQLNonNull,
   GraphQLString,
   GraphQLList,
   GraphQLID,
-  GraphQLInt,
 } = require('graphql');
 
 const AuthorType = new GraphQLObjectType({
@@ -17,36 +17,25 @@ const AuthorType = new GraphQLObjectType({
       firstName: { type: new GraphQLNonNull(GraphQLString) },
       lastName: { type: new GraphQLNonNull(GraphQLString) },
       books: {
-        type: new GraphQLList(BookType),
-        resolve: async ({ id }) => {
-          console.log('id: ', id);
-          const { data: books } = await axios.get(
-            `http://localhost:3004/books?authorId=${id}`
-          );
-          return books;
+        type: new GraphQLList(require('./bookType').BookType),
+        resolve: async ({ id }, _, context) => {
+          return context.bookLoader.load(id);
         },
       },
     };
   },
 });
 
-const BookType = new GraphQLObjectType({
-  name: 'book',
-  description: 'Book Type',
+const AuthorInputType = new GraphQLInputObjectType({
+  name: 'authorInputType',
+  description: 'Author Input Type',
   fields: () => {
     return {
-      id: { type: new GraphQLNonNull(GraphQLID) },
-      title: { type: new GraphQLNonNull(GraphQLString) },
-      author: {
-        type: AuthorType,
-        resolve: async ({ authorId }, _, context) => {
-          // const {data: user} = await axios.get(`http://localhost:3004/authors/${authorId}`);
-          // return user;
-          return context.authorLoader.load(authorId);
-        },
-      },
+      firstName: { type: new GraphQLNonNull(GraphQLString) },
+      lastName: { type: new GraphQLNonNull(GraphQLString) },
     };
   },
 });
 
-module.exports = { AuthorType, BookType };
+
+module.exports = { AuthorType, AuthorInputType };
